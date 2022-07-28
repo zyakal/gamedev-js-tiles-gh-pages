@@ -170,63 +170,121 @@ Hero.prototype._collide = function (dirX, dirY) {
   var top = this.y - this.height / 2;
   var bottom = this.y + this.height / 2 - 1;
   // console.log(this.map.isSolidTileAtXY(left, top));
-  var collision =
-    this.map.isSolidTileAtXY(left, top) ||
-    this.map.isSolidTileAtXY(right, top) ||
-    this.map.isSolidTileAtXY(right, bottom) ||
-    this.map.isSolidTileAtXY(left, bottom);
-  if (!collision) {
-    return;
-  }
-
-  if (dirY > 0) {
-    row = this.map.getRow(bottom); //y축(아래)으로 이동하다 충돌한 오브젝트의 top 행 번호
-    this.y = -this.height / 2 + this.map.getY(row); //?
-    // console.log("down");
-    if (dirX > 0) {
-      col = this.map.getCol(right);
-      this.x = -this.width / 2 + this.map.getX(col);
-    } else if (dirX < 0) {
-      col = this.map.getCol(left);
-      this.x = this.width / 2 + this.map.getX(col + 1);
-    }
-  } else if (dirY < 0) {
-    //위로 부딪히고
+  // 부딪힘 판정(아래)
+  // 위로만 부딪혔을 때
+  if (
+    this.map.isSolidTileAtXY(left, top) &&
+    this.map.isSolidTileAtXY(right, top) &&
+    !(
+      this.map.isSolidTileAtXY(right, bottom) ||
+      this.map.isSolidTileAtXY(left, bottom)
+    )
+  ) {
     row = this.map.getRow(top);
     this.y = this.height / 2 + this.map.getY(row + 1);
-    if (dirX > 0) {
-      col = this.map.getCol(right);
-      this.x = -this.width / 2 + this.map.getX(col);
-    } else if (dirX < 0) {
-      col = this.map.getCol(left);
-      this.x = this.width / 2 + this.map.getX(col + 1);
-    }
-    // console.log("up");
-  } else if (dirX > 0) {
-    col = this.map.getCol(right);
-    this.x = -this.width / 2 + this.map.getX(col);
-    // console.log("right");
-    // if (dirY > 0) {
-    //   row = this.map.getRow(bottom);
-    //   this.y = -this.height / 2 + this.map.getY(row); //?
-    // } else if (dirY < 0) {
-    //   row = this.map.getRow(top);
-    //   this.y = this.height / 2 + this.map.getY(row + 1);
-    // }
-  } else if (dirX < 0) {
+    console.log("되나?");
+  }
+  //아래로만 부딪혔을 때
+  else if (
+    this.map.isSolidTileAtXY(left, bottom) &&
+    this.map.isSolidTileAtXY(right, bottom) &&
+    !(
+      this.map.isSolidTileAtXY(right, top) ||
+      this.map.isSolidTileAtXY(left, top)
+    )
+  ) {
+    row = this.map.getRow(bottom); //y축(아래)으로 이동하다 충돌한 오브젝트의 top 행 번호
+    this.y = -this.height / 2 + this.map.getY(row);
+    console.log("되는건가?");
+  }
+  //왼쪽으로만 막혔을 때
+  else if (
+    this.map.isSolidTileAtXY(left, top) &&
+    this.map.isSolidTileAtXY(left, bottom) &&
+    !(
+      this.map.isSolidTileAtXY(right, top) ||
+      this.map.isSolidTileAtXY(right, bottom)
+    )
+  ) {
     col = this.map.getCol(left);
     this.x = this.width / 2 + this.map.getX(col + 1);
-    // console.log("left");
-    // if (dirY > 0) {
-    //   row = this.map.getRow(bottom);
-    //   this.y = -this.height / 2 + this.map.getY(row); //?
-    // } else if (dirY < 0) {
-    //   row = this.map.getRow(top);
-    //   this.y = this.height / 2 + this.map.getY(row + 1);
-    // }
-
-    //동시입력시 충돌발생
+    console.log("제발?");
+  } else if (
+    this.map.isSolidTileAtXY(right, top) &&
+    this.map.isSolidTileAtXY(right, bottom) &&
+    !(
+      this.map.isSolidTileAtXY(left, bottom) ||
+      this.map.isSolidTileAtXY(left, top)
+    )
+  ) {
+    col = this.map.getCol(right);
+    this.x = -this.width / 2 + this.map.getX(col);
+    console.log("되어라!");
+  } else if (this.map.isSolidTileAtXY(left, top)) {
+    col = this.map.getCol(left);
+    this.x = this.width / 2 + this.map.getX(col + 1);
+    row = this.map.getRow(top);
+    this.y = this.height / 2 + this.map.getY(row + 1);
+  } else if (this.map.isSolidTileAtXY(right, top)) {
+    row = this.map.getRow(top);
+    this.y = this.height / 2 + this.map.getY(row + 1);
+    col = this.map.getCol(right);
+    this.x = -this.width / 2 + this.map.getX(col);
+  } else if (this.map.isSolidTileAtXY(left, bottom)) {
+    col = this.map.getCol(left);
+    this.x = this.width / 2 + this.map.getX(col + 1);
+    row = this.map.getRow(bottom); //y축(아래)으로 이동하다 충돌한 오브젝트의 top 행 번호
+    this.y = -this.height / 2 + this.map.getY(row);
+  } else if (this.map.isSolidTileAtXY(right, bottom)) {
+    row = this.map.getRow(bottom); //y축(아래)으로 이동하다 충돌한 오브젝트의 top 행 번호
+    this.y = -this.height / 2 + this.map.getY(row);
+    col = this.map.getCol(right);
+    this.x = -this.width / 2 + this.map.getX(col);
   }
+
+  // var collision =
+  //   this.map.isSolidTileAtXY(left, top) ||
+  //   this.map.isSolidTileAtXY(right, top) ||
+  //   this.map.isSolidTileAtXY(right, bottom) ||
+  //   this.map.isSolidTileAtXY(left, bottom);
+  // if (!collision) {
+  //   return;
+  // }
+
+  //부딪혔을 때만 아래 코드가 실행됨
+
+  // if (dirY > 0) {
+  //   row = this.map.getRow(bottom); //y축(아래)으로 이동하다 충돌한 오브젝트의 top 행 번호
+  //   this.y = -this.height / 2 + this.map.getY(row); //?
+  //   // console.log("down");
+  //   if (dirX > 0) {
+  //     col = this.map.getCol(right);
+  //     this.x = -this.width / 2 + this.map.getX(col);
+  //   } else if (dirX < 0) {
+  //     col = this.map.getCol(left);
+  //     this.x = this.width / 2 + this.map.getX(col + 1);
+  //   }
+  // } else if (dirY < 0) {
+  //   //위로 부딪히고
+  //   row = this.map.getRow(top);
+  //   this.y = this.height / 2 + this.map.getY(row + 1);
+  //   if (dirX > 0) {
+  //     col = this.map.getCol(right);
+  //     this.x = -this.width / 2 + this.map.getX(col);
+  //   } else if (dirX < 0) {
+  //     col = this.map.getCol(left);
+  //     this.x = this.width / 2 + this.map.getX(col + 1);
+  //   }
+  //   // console.log("up");
+  // } else if (dirX > 0) {
+  //   col = this.map.getCol(right);
+  //   this.x = -this.width / 2 + this.map.getX(col);
+  // } else if (dirX < 0) {
+  //   col = this.map.getCol(left);
+  //   this.x = this.width / 2 + this.map.getX(col + 1);
+
+  //   // 동시입력시 충돌발생
+  // }
 };
 
 Game.load = function () {
