@@ -182,6 +182,7 @@ Hero.prototype._collide = function (dirX, dirY) {
   if (dirY > 0) {
     row = this.map.getRow(bottom); //y축(아래)으로 이동하다 충돌한 오브젝트의 top 행 번호
     this.y = -this.height / 2 + this.map.getY(row); //?
+<<<<<<< HEAD
     // console.log("down");
     if (dirX > 0) {
       col = this.map.getCol(right);
@@ -190,10 +191,14 @@ Hero.prototype._collide = function (dirX, dirY) {
       col = this.map.getCol(left);
       this.x = this.width / 2 + this.map.getX(col + 1);
     }
+=======
+    console.log("down");
+>>>>>>> 15a4f58ad68ade18a9f6da7f409b05625f38442f
   } else if (dirY < 0) {
     //위로 부딪히고
     row = this.map.getRow(top);
     this.y = this.height / 2 + this.map.getY(row + 1);
+<<<<<<< HEAD
     if (dirX > 0) {
       col = this.map.getCol(right);
       this.x = -this.width / 2 + this.map.getX(col);
@@ -213,6 +218,13 @@ Hero.prototype._collide = function (dirX, dirY) {
     //   row = this.map.getRow(top);
     //   this.y = this.height / 2 + this.map.getY(row + 1);
     // }
+=======
+    console.log("up");
+  } else if (dirX > 0) {
+    col = this.map.getCol(right);
+    this.x = -this.width / 2 + this.map.getX(col);
+    console.log("right");
+>>>>>>> 15a4f58ad68ade18a9f6da7f409b05625f38442f
   } else if (dirX < 0) {
     col = this.map.getCol(left);
     this.x = this.width / 2 + this.map.getX(col + 1);
