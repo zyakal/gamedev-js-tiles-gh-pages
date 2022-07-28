@@ -41,15 +41,19 @@ var map = {
       false
     );
   },
+  // 인수는 좌표값, 리턴은 행,열 값
   getCol: function (x) {
     return Math.floor(x / this.tsize);
   },
   getRow: function (y) {
     return Math.floor(y / this.tsize);
   },
+
+  // 그 열에 해당하는 X의 픽셀좌표값
   getX: function (col) {
     return col * this.tsize;
   },
+  // Y의 픽셀좌표값
   getY: function (row) {
     return row * this.tsize;
   },
@@ -174,6 +178,8 @@ Hero.prototype._collide = function (dirx, diry) {
   if (!collision) {
     return;
   }
+
+  //----------충돌실행 이중입력 함수 정의 시작-------------
   const a = () => {
     if (diry > 0) {
       row = this.map.getRow(bottom);
@@ -202,20 +208,18 @@ Hero.prototype._collide = function (dirx, diry) {
       console.log(8);
     }
   };
+  //---------- 충돌실행 이중입력 함수 정의 끝-------------
 
   if (diry > 0) {
     row = this.map.getRow(bottom); //y축으로 이동하다 충돌한 오브젝트의 top 행 번호
-    console.log(row);
     this.y = -this.height / 2 + this.map.getY(row);
-
-    c();
-    d();
+    c(); //오른쪽으로 갔을 때
+    d(); //왼쪽으로 갔을 때
   } else if (diry < 0) {
     //위로 부딪히고
     row = this.map.getRow(top);
     this.y = this.height / 2 + this.map.getY(row + 1);
 
-    console.log(row);
     c(); //오른쪽으로 갔을 때
     d(); //왼쪽으로 갔을 때
   } else if (dirx > 0) {
@@ -259,8 +263,8 @@ Game.update = function (delta) {
   // handle hero movement with arrow keys
   var dirx = 0;
   var diry = 0;
-  let count = this.hero.count++;
 
+  // -----------------------------temp 변수 넣어 블락이동 구현-------------------------------
   if (Keyboard.isDown(Keyboard.LEFT)) {
     dirx = -1;
     this.hero.tempX = -1;
@@ -306,8 +310,8 @@ Game.update = function (delta) {
       this.hero.tempX = -1;
     }
   }
-  let locatX = (this.hero.x - 160) % 64 !== 0;
-  let locatY = (this.hero.y - 160) % 64 !== 0;
+  let locatX = (this.hero.x - 160) % map.tsize !== 0;
+  let locatY = (this.hero.y - 160) % map.tsize !== 0;
 
   if (dirx !== 0 || locatX) {
     dirx = this.hero.tempX;
