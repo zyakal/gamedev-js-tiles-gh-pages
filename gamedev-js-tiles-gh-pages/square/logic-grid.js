@@ -41,6 +41,7 @@ var map = {
       false
     );
   },
+
   // 인수는 좌표값, 리턴은 행,열 값
   getCol: function (x) {
     return Math.floor(x / this.tsize);
@@ -130,7 +131,7 @@ while (i <= map.tsize) {
   }
   i++;
 }
-Hero.prototype.move = function (delta, dirx, diry) {
+Hero.prototype.move = function (delta, dirX, dirY) {
   // move hero
   // 픽셀 속도 배열값에서 캐릭터 움직값에 가장 가까운 숫자를 찾아 속도지정
   for (let i = 0; i < arr.length; i++) {
@@ -145,13 +146,13 @@ Hero.prototype.move = function (delta, dirx, diry) {
     }
   }
 
-  this.x += dirx * realSpeed;
+  this.x += dirX * realSpeed;
   this.x = Math.round(this.x);
 
-  this.y += diry * realSpeed;
+  this.y += dirY * realSpeed;
   this.y = Math.round(this.y);
   // check if we walked into a non-walkable tile
-  this._collide(dirx, diry);
+  this._collide(dirX, dirY);
 
   // clamp values
   var maxX = this.map.cols * this.map.tsize;
@@ -160,7 +161,7 @@ Hero.prototype.move = function (delta, dirx, diry) {
   this.y = Math.max(0, Math.min(this.y, maxY));
 };
 
-Hero.prototype._collide = function (dirx, diry) {
+Hero.prototype._collide = function (dirX, dirY) {
   var row, col;
   // -1 in right and bottom is because image ranges from 0..63
   // and not up to 64
@@ -168,12 +169,7 @@ Hero.prototype._collide = function (dirx, diry) {
   var right = this.x + this.width / 2 - 1;
   var top = this.y - this.height / 2;
   var bottom = this.y + this.height / 2 - 1;
-  if (this.map.isSolidTileAtXY(left, bottom + map.tsize + 1)) {
-    console.log("predown");
-  }
-
-  // check for collisions on sprite sides
-  // console.log(this.map.isSolidTileAtXY(left - (map.tsize + 1), top));
+  // console.log(this.map.isSolidTileAtXY(left, top));
   var collision =
     this.map.isSolidTileAtXY(left, top) ||
     this.map.isSolidTileAtXY(right, top) ||
@@ -183,23 +179,51 @@ Hero.prototype._collide = function (dirx, diry) {
     return;
   }
 
-  if (diry > 0) {
+  if (dirY > 0) {
     row = this.map.getRow(bottom); //y축(아래)으로 이동하다 충돌한 오브젝트의 top 행 번호
     this.y = -this.height / 2 + this.map.getY(row); //?
-    console.log("down");
-  } else if (diry < 0) {
+    // console.log("down");
+    if (dirX > 0) {
+      col = this.map.getCol(right);
+      this.x = -this.width / 2 + this.map.getX(col);
+    } else if (dirX < 0) {
+      col = this.map.getCol(left);
+      this.x = this.width / 2 + this.map.getX(col + 1);
+    }
+  } else if (dirY < 0) {
     //위로 부딪히고
     row = this.map.getRow(top);
     this.y = this.height / 2 + this.map.getY(row + 1);
-    console.log("up");
-  } else if (dirx > 0) {
+    if (dirX > 0) {
+      col = this.map.getCol(right);
+      this.x = -this.width / 2 + this.map.getX(col);
+    } else if (dirX < 0) {
+      col = this.map.getCol(left);
+      this.x = this.width / 2 + this.map.getX(col + 1);
+    }
+    // console.log("up");
+  } else if (dirX > 0) {
     col = this.map.getCol(right);
     this.x = -this.width / 2 + this.map.getX(col);
-    console.log("right");
-  } else if (dirx < 0) {
+    // console.log("right");
+    // if (dirY > 0) {
+    //   row = this.map.getRow(bottom);
+    //   this.y = -this.height / 2 + this.map.getY(row); //?
+    // } else if (dirY < 0) {
+    //   row = this.map.getRow(top);
+    //   this.y = this.height / 2 + this.map.getY(row + 1);
+    // }
+  } else if (dirX < 0) {
     col = this.map.getCol(left);
     this.x = this.width / 2 + this.map.getX(col + 1);
-    console.log("left");
+    // console.log("left");
+    // if (dirY > 0) {
+    //   row = this.map.getRow(bottom);
+    //   this.y = -this.height / 2 + this.map.getY(row); //?
+    // } else if (dirY < 0) {
+    //   row = this.map.getRow(top);
+    //   this.y = this.height / 2 + this.map.getY(row + 1);
+    // }
 
     //동시입력시 충돌발생
   }
@@ -228,68 +252,68 @@ Game.init = function () {
 
 Game.update = function (delta) {
   // handle hero movement with arrow keys
-  var dirx = 0;
-  var diry = 0;
+  var dirX = 0;
+  var dirY = 0;
   // -----------------------------temp 변수 넣어 블락이동 구현-------------------------------
   if (Keyboard.isDown(Keyboard.LEFT)) {
     this.hero.tempX = -1;
-    dirx = -1;
+    dirX = -1;
 
     if (Keyboard.isDown(Keyboard.UP)) {
-      diry = -1;
+      dirY = -1;
       this.hero.tempY = -1;
     }
     if (Keyboard.isDown(Keyboard.DOWN)) {
-      diry = 1;
+      dirY = 1;
       this.hero.tempY = 1;
     }
   } else if (Keyboard.isDown(Keyboard.RIGHT)) {
-    dirx = 1;
+    dirX = 1;
     this.hero.tempX = 1;
 
     if (Keyboard.isDown(Keyboard.UP)) {
-      diry = -1;
+      dirY = -1;
       this.hero.tempY = -1;
     }
     if (Keyboard.isDown(Keyboard.DOWN)) {
-      diry = 1;
+      dirY = 1;
       this.hero.tempY = 1;
     }
   }
 
   if (Keyboard.isDown(Keyboard.UP)) {
-    diry = -1;
+    dirY = -1;
     this.hero.tempY = -1;
   } else if (Keyboard.isDown(Keyboard.RIGHT)) {
-    dirx = 1;
+    dirX = 1;
     this.hero.tempX = 1;
   } else if (Keyboard.isDown(Keyboard.LEFT)) {
-    dirx = -1;
+    dirX = -1;
     this.hero.tempX = -1;
   }
 
   if (Keyboard.isDown(Keyboard.DOWN)) {
-    diry = 1;
+    dirY = 1;
     this.hero.tempY = 1;
   } else if (Keyboard.isDown(Keyboard.RIGHT)) {
-    dirx = 1;
+    dirX = 1;
     this.hero.tempX = 1;
   } else if (Keyboard.isDown(Keyboard.LEFT)) {
-    dirx = -1;
+    dirX = -1;
     this.hero.tempX = -1;
   }
 
   let locatX = (this.hero.x - 160) % map.tsize !== 0;
   let locatY = (this.hero.y - 160) % map.tsize !== 0;
 
-  if (dirx !== 0 || locatX) {
-    dirx = this.hero.tempX;
+  if (dirX !== 0 || locatX) {
+    dirX = this.hero.tempX;
   }
-  if (diry !== 0 || locatY) {
-    diry = this.hero.tempY;
+  if (dirY !== 0 || locatY) {
+    dirY = this.hero.tempY;
   }
 
-  this.hero.move(delta, dirx, diry);
+  this.hero.move(delta, dirX, dirY);
   this.camera.update();
 
   //   if (locat) {
