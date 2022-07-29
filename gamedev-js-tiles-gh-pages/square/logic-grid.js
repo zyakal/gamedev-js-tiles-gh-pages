@@ -30,7 +30,7 @@ var map = {
     // console.log(x, y);
     var col = Math.floor(x / this.tsize);
     var row = Math.floor(y / this.tsize);
-    console.log(col, row);
+
     // tiles 3 and 5 are solid -- the rest are walkable
     // loop through all layers and return TRUE if any tile is solid
     return this.layers.reduce(
@@ -195,21 +195,6 @@ Hero.prototype._collide = function (dirX, dirY) {
   const blockLeftDown = this.map.isSolidTileAtXY(left, bottom);
   const blockRightUp = this.map.isSolidTileAtXY(right, top);
   const blockRightDown = this.map.isSolidTileAtXY(right, bottom);
-  const blockLeftUpNext = this.map.isSolidTileAtXY(
-    left - map.tsize,
-    top - map.tsize
-  );
-  const blockLeftDownNext = this.map.isSolidTileAtXY(left - 1, bottom + 1);
-  const blockRightUpNext = this.map.isSolidTileAtXY(right + 1, top - 1);
-  const blockRightDownNext = this.map.isSolidTileAtXY(right + 1, bottom + 1);
-
-  if (blockLeftUpNext && !blockLeftUp) {
-    // row = this.map.getRow(top);
-    // this.y = this.height / 2 + this.map.getY(row + 1);
-    // col = this.map.getCol(left);
-    // this.x = this.width / 2 + this.map.getX(col + 1);
-    // console.log("예1");
-  }
 
   // 위로만 부딪혔을 때
   if (blockLeftUp && blockRightUp && !(blockRightDown || blockLeftDown)) {
@@ -241,68 +226,81 @@ Hero.prototype._collide = function (dirX, dirY) {
     this.y = this.height / 2 + this.map.getY(row + 1);
     console.log("왼위");
   } // 오른쪽, 위쪽 함께 막혔을때
-  else if (blockRightUp) {
+  else if (blockRightUp && blockLeftUp && blockRightDown) {
     row = this.map.getRow(top);
     this.y = this.height / 2 + this.map.getY(row + 1);
     col = this.map.getCol(right);
     this.x = -this.width / 2 + this.map.getX(col);
+    console.log("오위");
   } // 왼쪽, 아래쪽 함께 막혔을때
-  else if (blockLeftDown) {
+  else if (blockLeftDown && blockRightDown && blockLeftUp) {
     col = this.map.getCol(left);
     this.x = this.width / 2 + this.map.getX(col + 1);
     row = this.map.getRow(bottom);
     this.y = -this.height / 2 + this.map.getY(row);
+    console.log("왼아");
   } // 오른쪽, 아래쪽 함께 막혔을때
-  else if (blockRightDown) {
+  else if (blockRightDown && blockRightUp && blockLeftDown) {
     row = this.map.getRow(bottom);
     this.y = -this.height / 2 + this.map.getY(row);
     col = this.map.getCol(right);
     this.x = -this.width / 2 + this.map.getX(col);
+    console.log("오아");
+  } // 왼위 대각에 블럭이 있을때, 그 타일로 이동시
+  else if (blockLeftUp && !(blockRightDown && blockRightUp && blockLeftDown)) {
+    let blockX = this.map.getX(this.map.getCol(left) + 1) + this.width / 2;
+    let blockY = this.map.getY(this.map.getRow(top) + 1) + this.height / 2;
+
+    if (blockX - this.x > blockY - this.y) {
+      this.y = blockY;
+    } else if (blockX - this.x < blockY - this.y) {
+      this.x = blockX;
+    } else {
+      this.y = blockY;
+      this.x = blockX;
+    }
+  } // 왼아래 대각에 블럭이 있을때, 그 타일로 이동시
+  else if (blockLeftDown && !(blockRightDown && blockRightUp && blockLeftUp)) {
+    let blockX = this.map.getX(this.map.getCol(left) + 1) + this.width / 2;
+    let blockY = this.map.getY(this.map.getRow(bottom)) - this.height / 2;
+
+    if (blockX - this.x > this.y - blockY) {
+      this.y = blockY;
+    } else if (blockX - this.x < this.y - blockY) {
+      this.x = blockX;
+    } else {
+      this.y = blockY;
+      this.x = blockX;
+    }
   }
+  // 우위 대각에 블럭이 있을때, 그 타일로 이동시
+  else if (blockRightUp && !(blockRightDown && blockLeftDown && blockLeftUp)) {
+    let blockX = this.map.getX(this.map.getCol(right)) - this.width / 2;
+    let blockY = this.map.getY(this.map.getRow(top) + 1) + this.height / 2;
 
-  // var collision =
-  //   blockLeftUp ||
-  //   blockRightUp ||
-  //   blockRightDown ||
-  //   blockLeftDown;
-  // if (!collision) {
-  //   return;
-  // }
+    if (this.x - blockX > blockY - this.y) {
+      this.y = blockY;
+    } else if (this.x - blockX < blockY - this.y) {
+      this.x = blockX;
+    } else {
+      this.y = blockY;
+      this.x = blockX;
+    }
+  }
+  // 우아래 대각에 블럭이 있을때, 그 타일로 이동시
+  else if (blockRightDown && !(blockLeftDown && blockRightUp && blockLeftUp)) {
+    let blockX = this.map.getX(this.map.getCol(right)) - this.width / 2;
+    let blockY = this.map.getY(this.map.getRow(bottom)) - this.height / 2;
 
-  //부딪혔을 때만 아래 코드가 실행됨
-
-  // if (dirY > 0) {
-  //   row = this.map.getRow(bottom); //y축(아래)으로 이동하다 충돌한 오브젝트의 top 행 번호
-  //   this.y = -this.height / 2 + this.map.getY(row); //?
-  //   // console.log("down");
-  //   if (dirX > 0) {
-  //     col = this.map.getCol(right);
-  //     this.x = -this.width / 2 + this.map.getX(col);
-  //   } else if (dirX < 0) {
-  //     col = this.map.getCol(left);
-  //     this.x = this.width / 2 + this.map.getX(col + 1);
-  //   }
-  // } else if (dirY < 0) {
-  //   //위로 부딪히고
-  //   row = this.map.getRow(top);
-  //   this.y = this.height / 2 + this.map.getY(row + 1);
-  //   if (dirX > 0) {
-  //     col = this.map.getCol(right);
-  //     this.x = -this.width / 2 + this.map.getX(col);
-  //   } else if (dirX < 0) {
-  //     col = this.map.getCol(left);
-  //     this.x = this.width / 2 + this.map.getX(col + 1);
-  //   }
-  //   // console.log("up");
-  // } else if (dirX > 0) {
-  //   col = this.map.getCol(right);
-  //   this.x = -this.width / 2 + this.map.getX(col);
-  // } else if (dirX < 0) {
-  //   col = this.map.getCol(left);
-  //   this.x = this.width / 2 + this.map.getX(col + 1);
-
-  //   // 동시입력시 충돌발생
-  // }
+    if (this.x - blockX > this.y - blockY) {
+      this.y = blockY;
+    } else if (this.x - blockX < this.y - blockY) {
+      this.x = blockX;
+    } else {
+      this.y = blockY;
+      this.x = blockX;
+    }
+  }
 };
 
 Game.load = function () {
